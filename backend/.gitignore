@@ -14,4 +14,4 @@ prisma/*.db
 prisma/*.db-journal
 .DS_Store
 Thumbs.db
-/generated/prisma
+/prisma/generated
