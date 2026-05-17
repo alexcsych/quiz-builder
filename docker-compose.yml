@@ -10,30 +10,40 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - quiz-postgres_data:/var/lib/postgresql/data
+      - quiz_postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # app:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     network: host
-  #     args:
-  #       - NEXT_PUBLIC_S3_URL=${NEXT_PUBLIC_S3_URL}
-  #       - DATABASE_URL=${DATABASE_URL}
-  #   container_name: bubble-owl-app
-  #   restart: always
-  #   ports:
-  #     - "3000:3000"
-  #   env_file:
-  #     - .env.production
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quiz-builder-server
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - backend/.env.production
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quiz-builder-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - frontend/.env.production
+    depends_on:
+      server:
+        condition: service_started
 
 volumes:
-  quiz-postgres_data:
+  quiz_postgres_data:
