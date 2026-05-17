@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: quiz-builder-db
+    restart: always
+    env_file:
+      - backend/.env.production
+    ports:
+      - "5433:5432"
+    volumes:
+      - quiz-postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     network: host
+  #     args:
+  #       - NEXT_PUBLIC_S3_URL=${NEXT_PUBLIC_S3_URL}
+  #       - DATABASE_URL=${DATABASE_URL}
+  #   container_name: bubble-owl-app
+  #   restart: always
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - .env.production
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+
+volumes:
+  quiz-postgres_data:
